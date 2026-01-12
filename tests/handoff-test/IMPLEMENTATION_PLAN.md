@@ -18,11 +18,11 @@
 
 ### P1: Enhancements
 
-- [ ] P1.1 Add formal mode parameter
+- [x] P1.1 Add formal mode parameter
   - scope: src/greet.ts
   - validation: npx tsc --noEmit
-  - assigned_thread:
-  - status: not_started
+  - assigned_thread: T-019bb298-4d39-74e5-9ed9-969ac3439623
+  - status: completed
   - depends_on: P0.1
 
 ### P2: Nice to have

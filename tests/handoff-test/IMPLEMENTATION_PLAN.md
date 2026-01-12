@@ -27,11 +27,11 @@
 
 ### P2: Nice to have
 
-- [ ] P2.1 Add time-based greeting
+- [x] P2.1 Add time-based greeting
   - scope: src/greet.ts
   - validation: npx tsc --noEmit
-  - assigned_thread:
-  - status: not_started
+  - assigned_thread: T-019bb299-9435-74bc-abe7-19e70367cbd0
+  - status: completed
   - depends_on: P0.1
 
 ## Notes

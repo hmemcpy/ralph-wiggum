@@ -40,7 +40,7 @@ Set `AGENT_TYPE` to either `amp` or `claude` based on detection.
 
 ## Your Task
 
-Generate/regenerate the complete Ralph loop infrastructure:
+Generate/regenerate the complete Ralph loop infrastructure in the **project's root folder**:
 
 ---
 

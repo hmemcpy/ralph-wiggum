@@ -86,7 +86,7 @@ git clone https://github.com/hmemcpy/ralph-wiggum ~/.config/agents/skills/ralph-
 /skill ralph
 ```
 
-The command generates:
+The command generates all files in the **project's root folder**:
 
 | File | Purpose |
 |------|---------|

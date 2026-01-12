@@ -15,6 +15,8 @@ Generate the complete Ralph Wiggum loop infrastructure for iterative AI-driven d
 
 ## What It Creates
 
+All files are generated in the **project's root folder**:
+
 | File | Purpose |
 |------|---------|
 | `specs/*.md` | Feature specs (one topic per file) |

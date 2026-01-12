@@ -67,11 +67,13 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## Exit Conditions
 
-**All Complete**: All tasks done, validation passes → Output `RALPH_COMPLETE` → Exit
+**IMPORTANT**: Only output `RALPH_COMPLETE` when ALL tasks in IMPLEMENTATION_PLAN.md are marked `[x]` complete. 
 
-**Success**: Task complete, tests pass, committed → Exit
+**After completing ONE task**: Just exit. Do NOT output RALPH_COMPLETE. The loop will restart you.
 
-**Blocked**: Document blocker in plan, commit plan update → Exit
+**All tasks complete**: All tasks marked `[x]`, validation passes → Output `RALPH_COMPLETE` → Exit
+
+**Blocked**: Document blocker in plan, commit plan update → Exit (no RALPH_COMPLETE)
 
 ## Context Files
 

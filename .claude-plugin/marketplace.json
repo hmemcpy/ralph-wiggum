@@ -1,5 +1,7 @@
 {
   "name": "ralph-wiggum",
+  "version": "1.0.0",
+  "description": "Generate Ralph Wiggum loop infrastructure for iterative AI-driven development",
   "owner": {
     "name": "hmemcpy",
     "email": "hmemcpy@gmail.com"
@@ -7,12 +9,13 @@
   "plugins": [
     {
       "name": "ralph-wiggum",
-      "source": {
-        "source": "github",
-        "repo": "hmemcpy/ralph-wiggum"
+      "description": "Generate the complete Ralph Wiggum loop infrastructure for iterative AI-driven development. Supports Claude Code and Amp with agent-specific optimizations.",
+      "version": "1.0.0",
+      "author": {
+        "name": "hmemcpy"
       },
-      "description": "Generate Ralph Wiggum loop infrastructure for iterative AI-driven development",
-      "version": "1.0.0"
+      "source": "./",
+      "category": "development"
     }
   ]
 }

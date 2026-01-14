@@ -334,45 +334,6 @@ echo -e "${GREEN}Ralph Build Loop (Amp)${NC}"
 echo "Press Ctrl+C to stop"
 echo "---"
 
-get_last_thread_id() {
-  amp threads list 2>/dev/null | awk 'NR==3 {print $NF}'
-}
-
-run_iteration() {
-  local thread_name="ralph: ${FEATURE_NAME} #${ITERATION}"
-  local PARENT_THREAD=$(cat "$PARENT_THREAD_FILE" 2>/dev/null || true)
-  
-  if [[ -n "$PARENT_THREAD" ]]; then
-    # Create child thread via handoff from parent
-    echo -e "${CYAN}Creating handoff from parent ${PARENT_THREAD}...${NC}" >&2
-    
-    # Handoff: --goal carries parent context, piped content is the prompt
-    cat "$PROMPT_FILE" | amp threads handoff "$PARENT_THREAD" \
-      --goal "$(cat "$PROMPT_FILE")" \
-      -x \
-      --dangerously-allow-all \
-      --stream-json 2>&1
-    
-    # Rename the new child thread
-    local child_id=$(get_last_thread_id)
-    if [[ -n "$child_id" && "$child_id" != "$PARENT_THREAD" ]]; then
-      amp threads rename "$child_id" "$thread_name" 2>/dev/null || true
-      echo -e "${CYAN}Child thread: $child_id → $thread_name${NC}" >&2
-    fi
-  else
-    # First iteration: create parent thread
-    amp -x --dangerously-allow-all --stream-json < "$PROMPT_FILE" 2>&1
-    
-    # Capture as parent for subsequent handoffs
-    local parent_id=$(get_last_thread_id)
-    if [[ -n "$parent_id" ]]; then
-      echo "$parent_id" > "$PARENT_THREAD_FILE"
-      amp threads rename "$parent_id" "ralph: ${FEATURE_NAME} (parent)" 2>/dev/null || true
-      echo -e "${CYAN}Parent thread: $parent_id${NC}" >&2
-    fi
-  fi
-}
-
 while true; do
   ITERATION=$((ITERATION + 1))
   echo ""
@@ -380,9 +341,28 @@ while true; do
   echo ""
 
   TEMP_OUTPUT=$(mktemp)
+  PARENT_THREAD=$(cat "$PARENT_THREAD_FILE" 2>/dev/null || true)
   set +e
 
-  run_iteration | tee "$TEMP_OUTPUT" | jq -r '
+  if [[ -n "$PARENT_THREAD" ]]; then
+    # Create child thread via handoff from parent
+    echo -e "${CYAN}Creating handoff from parent ${PARENT_THREAD}...${NC}"
+    
+    cat "$PROMPT_FILE" | amp threads handoff "$PARENT_THREAD" \
+      --goal "$(cat "$PROMPT_FILE")" \
+      -x \
+      --dangerously-allow-all \
+      --stream-json > "$TEMP_OUTPUT" 2>&1
+  else
+    # First iteration: create parent thread
+    amp -x --dangerously-allow-all --stream-json < "$PROMPT_FILE" > "$TEMP_OUTPUT" 2>&1
+  fi
+
+  # Extract thread ID from JSON output
+  THREAD_ID=$(jq -r 'select(.type == "system") | .session_id' "$TEMP_OUTPUT" 2>/dev/null | head -1)
+
+  # Display progress
+  cat "$TEMP_OUTPUT" | jq -r '
       def tool_info:
         if .name == "edit_file" or .name == "create_file" or .name == "Read" then
           (.input.path | split("/") | last | .[0:60])
@@ -415,9 +395,23 @@ while true; do
 
   EXIT_CODE=$?
   OUTPUT=$(cat "$TEMP_OUTPUT")
-  RESULT_MSG=$(cat "$TEMP_OUTPUT" | jq -r 'select(.type == "result") | .result // empty' 2>/dev/null | tail -1)
+  RESULT_MSG=$(jq -r 'select(.type == "result") | .result // empty' "$TEMP_OUTPUT" 2>/dev/null | tail -1)
   rm -f "$TEMP_OUTPUT"
   set -e
+
+  # Name/rename thread
+  if [[ -n "$THREAD_ID" ]]; then
+    if [[ -z "$PARENT_THREAD" ]]; then
+      # First iteration: save as parent, name it
+      echo "$THREAD_ID" > "$PARENT_THREAD_FILE"
+      amp threads rename "$THREAD_ID" "ralph: ${FEATURE_NAME} (parent)" 2>/dev/null || true
+      echo -e "${CYAN}Parent thread: $THREAD_ID${NC}"
+    else
+      # Child iteration: name it
+      amp threads rename "$THREAD_ID" "ralph: ${FEATURE_NAME} #${ITERATION}" 2>/dev/null || true
+      echo -e "${CYAN}Child thread: $THREAD_ID${NC}"
+    fi
+  fi
 
   if is_recoverable_error "$OUTPUT" "$EXIT_CODE"; then
     handle_recoverable_error "$OUTPUT"

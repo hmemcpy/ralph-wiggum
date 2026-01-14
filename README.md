@@ -126,8 +126,9 @@ ralph-wiggum/
 │       └── SKILL.md        # Amp skill (unified planning + generation)
 ├── commands/
 │   └── ralph.md            # Claude Code slash command
+├── agents/
+│   └── claude/             # Claude Code templates
 ├── common/                 # Shared components
-├── agents/                 # Agent-specific templates (legacy)
 ├── SKILL.md                # Root skill
 ├── install.sh              # Install to ~/.config/agents/skills/
 └── README.md

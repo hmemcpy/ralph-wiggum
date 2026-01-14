@@ -1,6 +1,6 @@
 # Ralph Planning Command
 
-Interactive planning for iterative AI-driven development. This command interviews the user to gather requirements before generating implementation files.
+Interactive planning for iterative AI-driven development. This command uses Plan Mode to interview the user and gather requirements before generating implementation files.
 
 ## Input
 
@@ -13,7 +13,7 @@ $ARGUMENTS
 
 ## Step 1: Interview the User
 
-You MUST ask clarifying questions before generating any files. Present questions with lettered options for quick responses.
+Use the `AskUserQuestion` tool to gather requirements. Present questions with lettered options for quick responses.
 
 **Interview approach:**
 1. Present 3-5 questions covering scope, constraints, and validation
@@ -21,27 +21,23 @@ You MUST ask clarifying questions before generating any files. Present questions
 3. Allow the user to respond with shorthand like "1A, 2C, 3B"
 4. Ask follow-up questions if answers are unclear
 
-**Example interview:**
+**Example questions to ask:**
 
-> I'll help you plan this feature. First, let me ask a few questions:
->
-> **1. Scope** - How broad is this change?
-> - A) Single file/module
-> - B) Multiple related files  
-> - C) Cross-cutting (many parts of codebase)
-> - D) Greenfield (new feature from scratch)
->
-> **2. Risk tolerance** - How aggressive should changes be?
-> - A) Conservative - minimal changes
-> - B) Balanced - reasonable refactoring OK
-> - C) Aggressive - significant refactoring acceptable
->
-> **3. Validation** - How should we verify the implementation?
-> - A) Existing test suite
-> - B) Add new tests
-> - C) Manual testing sufficient
->
-> Reply with your choices (e.g., "1B, 2A, 3B") or answer in your own words.
+1. **Scope** - How broad is this change?
+   - A) Single file/module
+   - B) Multiple related files  
+   - C) Cross-cutting (many parts of codebase)
+   - D) Greenfield (new feature from scratch)
+
+2. **Risk tolerance** - How aggressive should changes be?
+   - A) Conservative - minimal changes
+   - B) Balanced - reasonable refactoring OK
+   - C) Aggressive - significant refactoring acceptable
+
+3. **Validation** - How should we verify the implementation?
+   - A) Existing test suite
+   - B) Add new tests
+   - C) Manual testing sufficient
 
 **WAIT for user response before proceeding.**
 
@@ -49,14 +45,14 @@ You MUST ask clarifying questions before generating any files. Present questions
 
 ## Step 2: Deep Analysis (Optional)
 
-After receiving answers, offer to analyze the codebase:
+After receiving answers, offer deeper analysis:
 
 > Would you like me to analyze the codebase architecture before generating the plan?
-> - Reply **analyze** for deep analysis with subagents
+> - Reply **ultrathink** for deep analysis with extended thinking
 > - Reply **skip** to proceed directly
 
-### If user chooses `analyze`:
-1. Use parallel subagents to analyze relevant code areas
+### If user chooses `ultrathink`:
+1. Use extended thinking to deeply analyze relevant code areas
 2. Identify existing patterns, potential conflicts, dependencies
 3. Present findings and any additional clarifying questions
 4. **WAIT for user response before proceeding**

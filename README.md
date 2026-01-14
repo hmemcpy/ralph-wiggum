@@ -82,8 +82,8 @@ The skill will:
 ```
 
 The command will:
-1. Ask 3-5 clarifying questions (A/B/C/D format — respond with "1A, 2C, 3B")
-2. Optionally run deep analysis with Opus subagents
+1. Use Plan Mode + `AskUserQuestion` to interview you
+2. Optionally run `ultrathink` for deep analysis with extended thinking
 3. Generate all files
 
 ## Running the Loop
@@ -106,12 +106,18 @@ chmod +x loop.sh
 - **Thread tracking**: Commits include Amp thread URL for traceability
 - **Completion detection**: Exits when agent outputs `RALPH_COMPLETE`
 
-## Amp-Specific Features
+## Agent-Specific Features
 
+### Amp
 - **Oracle**: Architecture review, planning decisions, debugging
 - **Librarian**: Read library documentation, understand APIs
 - **finder**: Semantic codebase search (not just text matching)
 - **Task**: Parallel subagent work for independent operations
+
+### Claude Code
+- **Plan Mode**: Read-only analysis with `AskUserQuestion` for requirements gathering
+- **Extended Thinking**: Use `ultrathink` keyword for deep reasoning
+- **Subagents**: Parallel analysis of code areas
 
 ## Core Principles
 

@@ -183,7 +183,7 @@ grep -c "^\- \[ \]" IMPLEMENTATION_PLAN.md || echo 0
 
 ### 4. `loop.sh`
 
-Generate with this content:
+Generate with this content (replace `[FEATURE_NAME]` with a short kebab-case feature name like `auth-system` or `api-refactor`):
 
 ```bash
 #!/bin/bash
@@ -193,10 +193,12 @@ Generate with this content:
 
 set -e
 
+FEATURE_NAME="[FEATURE_NAME]"
 MAX_ITERATIONS=0
 ITERATION=0
 CONSECUTIVE_FAILURES=0
 MAX_CONSECUTIVE_FAILURES=3
+PARENT_THREAD_FILE=$(mktemp)
 
 # Colors
 RED='\033[0;31m'
@@ -218,6 +220,11 @@ if [[ ! -f "$PROMPT_FILE" ]]; then
   echo "Run the ralph skill first to generate the required files."
   exit 1
 fi
+
+cleanup() {
+  rm -f "$PARENT_THREAD_FILE"
+}
+trap cleanup EXIT
 
 seconds_until_next_hour() {
   local now=$(date +%s)
@@ -327,6 +334,45 @@ echo -e "${GREEN}Ralph Build Loop (Amp)${NC}"
 echo "Press Ctrl+C to stop"
 echo "---"
 
+get_last_thread_id() {
+  amp threads list 2>/dev/null | awk 'NR==3 {print $NF}'
+}
+
+run_iteration() {
+  local thread_name="ralph: ${FEATURE_NAME} #${ITERATION}"
+  local PARENT_THREAD=$(cat "$PARENT_THREAD_FILE" 2>/dev/null || true)
+  
+  if [[ -n "$PARENT_THREAD" ]]; then
+    # Create child thread via handoff from parent
+    echo -e "${CYAN}Creating handoff from parent ${PARENT_THREAD}...${NC}" >&2
+    
+    # Handoff: --goal carries parent context, piped content is the prompt
+    cat "$PROMPT_FILE" | amp threads handoff "$PARENT_THREAD" \
+      --goal "$(cat "$PROMPT_FILE")" \
+      -x \
+      --dangerously-allow-all \
+      --stream-json 2>&1
+    
+    # Rename the new child thread
+    local child_id=$(get_last_thread_id)
+    if [[ -n "$child_id" && "$child_id" != "$PARENT_THREAD" ]]; then
+      amp threads rename "$child_id" "$thread_name" 2>/dev/null || true
+      echo -e "${CYAN}Child thread: $child_id → $thread_name${NC}" >&2
+    fi
+  else
+    # First iteration: create parent thread
+    amp -x --dangerously-allow-all --stream-json < "$PROMPT_FILE" 2>&1
+    
+    # Capture as parent for subsequent handoffs
+    local parent_id=$(get_last_thread_id)
+    if [[ -n "$parent_id" ]]; then
+      echo "$parent_id" > "$PARENT_THREAD_FILE"
+      amp threads rename "$parent_id" "ralph: ${FEATURE_NAME} (parent)" 2>/dev/null || true
+      echo -e "${CYAN}Parent thread: $parent_id${NC}" >&2
+    fi
+  fi
+}
+
 while true; do
   ITERATION=$((ITERATION + 1))
   echo ""
@@ -336,10 +382,7 @@ while true; do
   TEMP_OUTPUT=$(mktemp)
   set +e
 
-  amp -x \
-    --dangerously-allow-all \
-    --stream-json \
-    < "$PROMPT_FILE" 2>&1 | tee "$TEMP_OUTPUT" | jq -r '
+  run_iteration | tee "$TEMP_OUTPUT" | jq -r '
       def tool_info:
         if .name == "edit_file" or .name == "create_file" or .name == "Read" then
           (.input.path | split("/") | last | .[0:60])
@@ -436,5 +479,11 @@ After generating all files, tell the user:
 > - `IMPLEMENTATION_PLAN.md` - Task list with checkboxes
 > - `PROMPT.md` - Build mode instructions
 > - `loop.sh` - Build loop script
+>
+> **Thread organization:**
+> - First iteration creates parent thread: `ralph: <feature-name> (parent)`
+> - Subsequent iterations use `amp threads handoff` to create linked children
+> - Child threads named: `ralph: <feature-name> #N`
+> - View thread hierarchy at https://ampcode.com/threads
 >
 > **Next step:** Run `./loop.sh` to start the build loop.

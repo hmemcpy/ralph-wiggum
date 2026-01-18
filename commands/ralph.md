@@ -1,3 +1,8 @@
+---
+allowed-tools:
+  - "*"
+---
+
 # Ralph Planning Command
 
 Interactive planning for iterative AI-driven development. This command uses Plan Mode to interview the user and gather requirements before generating implementation files.
@@ -78,7 +83,7 @@ Extract:
 
 ## Step 4: Generate Files
 
-**Always overwrite existing files** — specs, plan, prompt, and loop script are ephemeral and meant to be regenerated.
+**Always overwrite existing files** — never add suffixes like `-v2`, `-new`, or `_backup`. These files are ephemeral and meant to be regenerated. Use the exact filenames specified below.
 
 ### 1. `specs/<feature-slug>.md`
 

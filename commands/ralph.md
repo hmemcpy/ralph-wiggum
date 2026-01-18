@@ -330,12 +330,18 @@ while true; do
   TEMP_OUTPUT=$(mktemp)
   set +e
 
-  claude -p \
+  claude --print \
     --dangerously-skip-permissions \
-    --print \
     --model opus \
-    --verbose \
-    <<< "$(cat "$PROMPT_FILE")" 2>&1 | tee "$TEMP_OUTPUT"
+    --output-format stream-json \
+    <<< "$(cat "$PROMPT_FILE")" 2>&1 | tee "$TEMP_OUTPUT" | jq -r '
+      if .type == "assistant" then
+        .message.content[]? |
+        if .type == "text" then .text
+        elif .type == "tool_use" then "  → " + .name + ": " + (.input | tostring | .[0:200])
+        else empty end
+      else empty end
+    ' 2>/dev/null
 
   EXIT_CODE=$?
   OUTPUT=$(cat "$TEMP_OUTPUT")

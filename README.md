@@ -138,6 +138,7 @@ ralph-wiggum/
 
 - An AI coding agent (Amp or Claude Code)
 - A project with tests/linting (for backpressure)
+- `jq` installed (for streaming output parsing)
 
 ## Security Warning
 

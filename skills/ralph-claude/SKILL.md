@@ -343,11 +343,28 @@ countdown() {
 
 is_usage_limit_error() {
   local output="$1"
+  local exit_code="$2"
 
-  if [[ "$output" =~ "You've hit your limit" ]]; then
+  # Only check for usage limits if there was an error
+  [[ "$exit_code" -eq 0 ]] && return 1
+
+  # Check the result JSON for error subtypes first (most reliable)
+  if echo "$output" | grep '^{' | jq -e 'select(.type == "result") | select(.subtype | test("error.*limit|rate_limit"))' &>/dev/null; then
     return 0
   fi
-  if [[ "$output" =~ Error:\ 429 ]] || [[ "$output" =~ Error:\ 529 ]]; then
+
+  # Fallback to text patterns in stderr/error messages (not in assistant text)
+  local error_text
+  error_text=$(echo "$output" | grep -v '^{' || true)
+  error_text+=$(echo "$output" | grep '^{' | jq -r 'select(.type == "result" and .is_error == true) | .result // empty' 2>/dev/null || true)
+
+  if [[ "$error_text" =~ "You've hit your limit" ]] || [[ "$error_text" =~ "You have hit your limit" ]]; then
+    return 0
+  fi
+  if [[ "$error_text" =~ Error:\ 429 ]] || [[ "$error_text" =~ Error:\ 529 ]]; then
+    return 0
+  fi
+  if [[ "$error_text" =~ rate.?limit ]] || [[ "$error_text" =~ usage.?limit ]]; then
     return 0
   fi
   return 1
@@ -488,7 +505,7 @@ while true; do
   rm -f "$TEMP_OUTPUT"
   set -e
 
-  if is_usage_limit_error "$OUTPUT"; then
+  if is_usage_limit_error "$OUTPUT" "$EXIT_CODE"; then
     handle_usage_limit "$OUTPUT"
     ITERATION=$((ITERATION - 1))
     continue

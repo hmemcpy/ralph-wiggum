@@ -43,7 +43,8 @@ mkdir -p "$CACHE_DIR"
 
 # Copy plugin files
 cp -r "$SCRIPT_DIR/.claude-plugin" "$CACHE_DIR/"
-cp -r "$SCRIPT_DIR/skills" "$CACHE_DIR/"
+mkdir -p "$CACHE_DIR/skills"
+cp -r "$SCRIPT_DIR/skills/ralph-claude" "$CACHE_DIR/skills/"
 
 # Update installed_plugins.json
 if [[ -f "$INSTALLED_PLUGINS" ]]; then

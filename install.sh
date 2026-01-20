@@ -92,7 +92,7 @@ echo -e "${CYAN}=== Amp ===${NC}"
 echo -e "${GREEN}Installing Amp skill to $AMP_SKILL_DIR${NC}"
 mkdir -p "$AMP_SKILL_DIR"
 # Copy the Amp skill
-cp "$SCRIPT_DIR/skills/ralph-amp/SKILL.md" "$AMP_SKILL_DIR/"
+cp "$SCRIPT_DIR/agents/ralph-amp/SKILL.md" "$AMP_SKILL_DIR/"
 cp "$SCRIPT_DIR/README.md" "$AMP_SKILL_DIR/"
 echo "  Done!"
 echo ""

@@ -89,12 +89,12 @@ Extract:
 
 ### 1. `specs/<feature-slug>.md`
 
-Requirements specification containing:
-- Feature overview
-- User stories with checkboxes
-- Acceptance criteria
-- Edge cases and error handling
-- Out of scope items
+Technical specification:
+- **Overview**: What the feature does (1-2 sentences)
+- **Requirements**: Numbered list of functional requirements (R1, R2, R3...)
+- **Constraints**: Technical limitations, performance targets, compatibility requirements
+- **Edge cases**: Error conditions and expected behavior
+- **Out of scope**: Explicitly excluded functionality
 
 ### 2. `IMPLEMENTATION_PLAN.md`
 

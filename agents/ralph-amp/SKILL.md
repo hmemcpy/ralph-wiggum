@@ -150,6 +150,12 @@ Update `IMPLEMENTATION_PLAN.md` with:
 - Dependencies noted where relevant
 - Discoveries from gap analysis
 
+**CRITICAL: ALL tasks MUST use checkbox format:**
+- `- [ ] **Task Name**` for pending tasks
+- `- [x] **Task Name**` for completed tasks
+
+Do NOT use other formats like `#### P1.1: Task Name` or `**Task Name**` without checkboxes. The build loop relies on `grep -c "^\- \[ \]"` to count remaining tasks.
+
 Capture the WHY, not just the WHAT.
 
 ## Phase 3: Exit
@@ -162,6 +168,7 @@ After updating the plan, output **RALPH_COMPLETE** and exit.
 1000. Use Task tool for parallel analysis of different areas
 1001. Each task must be completable in ONE loop iteration
 1002. Use Oracle to review priorities before finalizing
+1003. **ALWAYS use checkbox format `- [ ]` or `- [x]` for tasks in IMPLEMENTATION_PLAN.md** - The build loop relies on `grep -c "^\- \[ \]"` to count remaining tasks. Never use `####` headers or bold text without checkboxes.
 ```
 
 ### 4. `PROMPT_build.md`
